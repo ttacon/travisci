@@ -16,7 +16,6 @@ const (
 )
 
 type Client interface {
-	GetBuildByID(string) (*Build, error)
 	GetRepo(string) (*Repo, error)
 	GetJobByID(int) (*Job, error)
 	LogByID(int) (*Log, error)
@@ -35,6 +34,12 @@ type Client interface {
 
 	// Broadcasts
 	ListBroadcasts() ([]Broadcast, error)
+
+	// Builds
+	GetBuildByID(string) (*Build, error)
+	ListBuildsForRepo(string) ([]*Build, error)
+	CancelBuild(int) error
+	RestartBuild(int) error
 }
 
 type client struct {

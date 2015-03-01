@@ -3,6 +3,7 @@ package travisci
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -49,7 +50,7 @@ type Config struct {
 	Go           interface{} `json:"go"` // gross but deal w/ it, ty Travis :( eg: [1.3, "tip"]
 	Services     []string    `json:"services"`
 	BeforeScript []string    `json:"before_script"`
-	Result       string      `json:".result"` // TODO(ttacon): will this work?
+	Result       string      `json:".result"`
 	OS           string      `json:"os"`
 }
 
@@ -77,4 +78,65 @@ func (c *client) GetBuildByID(id string) (*Build, error) {
 		return nil, errors.New("no builds found")
 	}
 	return data.Builds[0], nil
+}
+
+// identifier can be slug or id
+func (c *client) ListBuildsForRepo(identifier string) ([]*Build, error) {
+	req, err := newReq(
+		"GET",
+		fmt.Sprintf("/repos/%s/builds", identifier),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(c.travisToken) > 0 {
+		req.Header.Add("Authorization", "token "+c.travisToken)
+	}
+	resp, err := c.c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data BuildResponse
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return data.Builds, nil
+}
+
+func (c *client) CancelBuild(buildID int) error {
+	req, err := newReq(
+		"POST",
+		fmt.Sprintf("/builds/%d/cancel", buildID),
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Authorization", "token "+c.travisToken)
+	resp, err := c.c.Do(req)
+	resp.Body.Close()
+	return err
+}
+
+func (c *client) RestartBuild(buildID int) error {
+	req, err := newReq(
+		"POST",
+		fmt.Sprintf("/builds/%d/restart", buildID),
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Authorization", "token "+c.travisToken)
+	resp, err := c.c.Do(req)
+	resp.Body.Close()
+	return err
 }
