@@ -21,6 +21,17 @@ type Client interface {
 	GetJobByID(int) (*Job, error)
 	LogByID(int) (*Log, error)
 	ArchivedLogByJob(int) ([]byte, error)
+
+	// Accounts
+	Accounts(bool) ([]Account, error)
+
+	// Annotations
+	CreateAnnotation(int, Annotation) error
+	ListAnnotations(int) ([]Annotation, error)
+
+	// Branches
+	ListBranches(string) ([]Branch, error)
+	GetBranch(string, string) (Branch, error)
 }
 
 type client struct {
