@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// Main API link: http://docs.travis-ci.com/api/#branches
+
 type Branch struct {
 	ID           int                    `json:"id"`
 	RepositoryID int                    `json:"repository_id"`
