@@ -32,6 +32,9 @@ type Client interface {
 	// Branches
 	ListBranches(string) ([]Branch, error)
 	GetBranch(string, string) (Branch, error)
+
+	// Broadcasts
+	ListBroadcasts() ([]Broadcast, error)
 }
 
 type client struct {
